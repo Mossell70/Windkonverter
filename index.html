@@ -1,28 +1,210 @@
+
+Wind konverter · HTML
 <!DOCTYPE html>
 <html lang="de">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Windkonverter</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            text-align: center;
-            padding: 50px;
-        }
-        h1 {
-            color: #4CAF50;
-            font-size: 3em;
-        }
-        p {
-            font-size: 1.2em;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wind">
+<meta name="theme-color" content="#14171B">
+<title>Wind-Konverter</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --bg: #14171B;
+    --panel: #1E242B;
+    --panel-hi: #262E37;
+    --line: #313A44;
+    --txt: #E9EDF2;
+    --muted: #7C8794;
+    --amber: #F6A623;
+    --green: #35D6A4;
+  }
+  html, body { height: 100%; }
+  body {
+    background:
+      radial-gradient(120% 80% at 50% -10%, #1C232B 0%, var(--bg) 60%);
+    color: var(--txt);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: max(env(safe-area-inset-top), 28px) 22px max(env(safe-area-inset-bottom), 28px);
+    overflow-y: auto;
+  }
+  .mono { font-family: "SF Mono", ui-monospace, "Menlo", monospace; }
+ 
+  header {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 26px;
+  }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
+  header h1 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+ 
+  .stack { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; }
+ 
+  .gauge {
+    background: linear-gradient(180deg, var(--panel-hi), var(--panel));
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 22px 24px 20px;
+    position: relative;
+    transition: border-color .18s ease, box-shadow .18s ease;
+  }
+  .gauge.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 34px -8px var(--accent); }
+  .gauge .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .gauge .label { font-size: 13px; font-weight: 600; letter-spacing: .5px; color: var(--muted); }
+  .gauge .unit { font-size: 26px; font-weight: 600; color: var(--accent); }
+  .gauge .val {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--txt);
+    font-size: 62px;
+    font-weight: 600;
+    letter-spacing: -1px;
+    line-height: 1.05;
+  }
+  .gauge .val::placeholder { color: #3C4650; }
+  #kn { --accent: var(--amber); }
+  #kn.g-accent { color: var(--amber); }
+  #kmh { --accent: var(--green); }
+ 
+  .eq {
+    align-self: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 1px;
+    padding: 2px 0;
+  }
+  .eq b { color: var(--txt); font-weight: 600; }
+ 
+  .ref {
+    width: 100%; max-width: 440px;
+    margin-top: 22px;
+    border-top: 1px solid var(--line);
+    padding-top: 16px;
+  }
+  .ref h2 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .chip {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 9px 4px;
+    text-align: center;
+    cursor: pointer;
+    transition: background .15s ease, transform .05s ease;
+  }
+  .chip:active { transform: scale(.95); background: var(--panel-hi); }
+  .chip .n { font-size: 17px; font-weight: 600; color: var(--amber); }
+  .chip.kmh .n { color: var(--green); }
+  .chip .u { font-size: 9px; color: var(--muted); letter-spacing: .5px; margin-top: 1px; }
+</style>
 </head>
 <body>
-    <h1>🌪️ Windkonverter 🌪️</h1>
-    <p>Willkommen beim Windkonverter!</p>
+  <header>
+    <span class="dot"></span>
+    <h1>Wind &middot; Knoten / km/h</h1>
+  </header>
+ 
+  <div class="stack">
+    <div class="gauge" id="g-kn">
+      <div class="top">
+        <span class="label">KNOTEN</span>
+        <span class="unit">kn</span>
+      </div>
+      <input class="val mono" id="kn" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+    </div>
+ 
+    <div class="eq mono">&times; 1,852 &nbsp;&harr;&nbsp; &divide; 1,852</div>
+ 
+    <div class="gauge" id="g-kmh">
+      <div class="top">
+        <span class="label">GESCHWINDIGKEIT</span>
+        <span class="unit">km/h</span>
+      </div>
+      <input class="val mono" id="kmh" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+    </div>
+  </div>
+ 
+  <div class="ref">
+    <h2>Schnellwahl &middot; Knoten &rarr; km/h</h2>
+    <div class="chips" id="chips-kn"></div>
+    <h2 style="margin-top:16px;">Schnellwahl &middot; km/h &rarr; Knoten</h2>
+    <div class="chips" id="chips-kmh"></div>
+  </div>
+ 
+<script>
+  const FACTOR = 1.852;
+  const kn = document.getElementById('kn');
+  const kmh = document.getElementById('kmh');
+  const gKn = document.getElementById('g-kn');
+  const gKmh = document.getElementById('g-kmh');
+ 
+  // Deutsche Zahlenformatierung: Komma als Dezimaltrennzeichen
+  const fmt = (n) => {
+    if (!isFinite(n)) return '';
+    return (Math.round(n * 10) / 10)
+      .toString()
+      .replace('.', ',');
+  };
+  const parse = (s) => parseFloat(String(s).replace(',', '.'));
+ 
+  function fromKn() {
+    const v = parse(kn.value);
+    kmh.value = kn.value.trim() === '' || isNaN(v) ? '' : fmt(v * FACTOR);
+  }
+  function fromKmh() {
+    const v = parse(kmh.value);
+    kn.value = kmh.value.trim() === '' || isNaN(v) ? '' : fmt(v / FACTOR);
+  }
+ 
+  kn.addEventListener('input', fromKn);
+  kmh.addEventListener('input', fromKmh);
+ 
+  kn.addEventListener('focus', () => gKn.classList.add('active'));
+  kn.addEventListener('blur', () => gKn.classList.remove('active'));
+  kmh.addEventListener('focus', () => gKmh.classList.add('active'));
+  kmh.addEventListener('blur', () => gKmh.classList.remove('active'));
+ 
+  // Schnellwahl in 5er-Schritten, in beide Richtungen
+  const knPresets  = [5, 10, 15, 20, 25, 30, 35, 40];
+  const kmhPresets = [20, 25, 30, 35, 40, 45, 50, 55];
+ 
+  const chipsKn = document.getElementById('chips-kn');
+  knPresets.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'chip';
+    el.innerHTML = `<div class="n">${p}</div><div class="u">${fmt(p*FACTOR)} km/h</div>`;
+    el.addEventListener('click', () => { kn.value = p; fromKn(); kn.blur(); });
+    chipsKn.appendChild(el);
+  });
+ 
+  const chipsKmh = document.getElementById('chips-kmh');
+  kmhPresets.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'chip kmh';
+    el.innerHTML = `<div class="n">${p}</div><div class="u">${fmt(p/FACTOR)} kn</div>`;
+    el.addEventListener('click', () => { kmh.value = p; fromKmh(); kmh.blur(); });
+    chipsKmh.appendChild(el);
+  });
+ 
+  kn.focus();
+</script>
 </body>
 </html>
