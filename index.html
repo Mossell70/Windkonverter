@@ -1,210 +1,210 @@
-
-Wind konverter · HTML
 <!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Wind">
-<meta name="theme-color" content="#14171B">
+<meta name="theme-color" content="#EAF3F9">
 <title>Wind-Konverter</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  :root {
-    --bg: #14171B;
-    --panel: #1E242B;
-    --panel-hi: #262E37;
-    --line: #313A44;
-    --txt: #E9EDF2;
-    --muted: #7C8794;
-    --amber: #F6A623;
-    --green: #35D6A4;
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  :root{
+    --panel:#FFFFFF; --line:#DCE7EF;
+    --txt:#15242F; --muted:#5F7280;
+    --sel:#2E86C9; --accent:#0E9E82; --warn:#E58A26;
   }
-  html, body { height: 100%; }
-  body {
-    background:
-      radial-gradient(120% 80% at 50% -10%, #1C232B 0%, var(--bg) 60%);
-    color: var(--txt);
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: max(env(safe-area-inset-top), 28px) 22px max(env(safe-area-inset-bottom), 28px);
-    overflow-y: auto;
+  html,body{ height:100%; }
+  body{
+    background:linear-gradient(180deg,#E6F1F9 0%,#F5FAFD 55%,#EEF6FB 100%);
+    color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Helvetica Neue",sans-serif;
+    min-height:100dvh; display:flex; flex-direction:column; align-items:center;
+    padding:max(env(safe-area-inset-top),26px) 20px max(env(safe-area-inset-bottom),26px);
+    overflow-y:auto; position:relative;
   }
-  .mono { font-family: "SF Mono", ui-monospace, "Menlo", monospace; }
- 
-  header {
-    width: 100%;
-    max-width: 440px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 26px;
+  .mono{ font-family:"SF Mono",ui-monospace,"Menlo",monospace; }
+
+  /* Wind-Hintergrund */
+  .windbg{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  .windbg path{ fill:none; stroke:#9CC2E0; stroke-linecap:round; }
+  @keyframes drift1{ 0%{transform:translateX(-30px)} 100%{transform:translateX(30px)} }
+  @keyframes drift2{ 0%{transform:translateX(25px)} 100%{transform:translateX(-25px)} }
+  .g1{ animation:drift1 11s ease-in-out infinite alternate; }
+  .g2{ animation:drift2 14s ease-in-out infinite alternate; }
+  .g3{ animation:drift1 17s ease-in-out infinite alternate; }
+  @media (prefers-reduced-motion:reduce){ .g1,.g2,.g3{ animation:none; } }
+
+  .wrap{ width:100%; max-width:440px; position:relative; z-index:1; }
+
+  header{ display:flex; align-items:center; gap:11px; margin-bottom:24px; }
+  .dot{ width:11px; height:11px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(14,158,130,.5); }
+  header h1{ font-size:19px; font-weight:800; letter-spacing:.5px; color:var(--txt); }
+
+  .caption{ font-size:15px; font-weight:800; letter-spacing:.2px; color:var(--txt); margin-bottom:12px; }
+  .caption span{ color:var(--sel); }
+
+  /* Einheitenauswahl */
+  .units{ display:grid; grid-template-columns:repeat(5,1fr); gap:7px; margin-bottom:26px; }
+  .unit-btn{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:12px 2px 10px; text-align:center; cursor:pointer;
+    box-shadow:0 2px 8px rgba(20,50,80,.05);
+    transition:background .15s ease, border-color .15s ease, transform .05s ease, box-shadow .15s ease;
   }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); }
-  header h1 {
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 2.5px;
-    text-transform: uppercase;
-    color: var(--muted);
+  .unit-btn:active{ transform:scale(.95); }
+  .unit-btn .u{ font-size:16px; font-weight:700; color:var(--txt); }
+  .unit-btn .n{ font-size:8.5px; letter-spacing:.2px; color:var(--muted); margin-top:3px; }
+  .unit-btn.sel{ background:#E4F1FC; border-color:var(--sel); box-shadow:0 0 0 1px var(--sel), 0 4px 14px rgba(46,134,201,.18); }
+  .unit-btn.sel .u{ color:var(--sel); }
+  .unit-btn.sel .n{ color:var(--sel); }
+
+  /* Eingabe */
+  .gauge{
+    background:var(--panel); border:1.5px solid var(--sel); border-radius:22px;
+    padding:20px 24px 18px; box-shadow:0 8px 26px rgba(46,134,201,.16); margin-bottom:26px;
   }
- 
-  .stack { width: 100%; max-width: 440px; display: flex; flex-direction: column; gap: 14px; flex: 1; justify-content: center; }
- 
-  .gauge {
-    background: linear-gradient(180deg, var(--panel-hi), var(--panel));
-    border: 1px solid var(--line);
-    border-radius: 22px;
-    padding: 22px 24px 20px;
-    position: relative;
-    transition: border-color .18s ease, box-shadow .18s ease;
+  .gauge .top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
+  .gauge .label{ font-size:13px; font-weight:700; letter-spacing:.4px; color:var(--muted); }
+  .gauge .unit{ font-size:23px; font-weight:700; color:var(--sel); }
+  .gauge input{
+    width:100%; background:transparent; border:none; outline:none; color:var(--txt);
+    font-size:60px; font-weight:700; letter-spacing:-1px; line-height:1.05;
   }
-  .gauge.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), 0 0 34px -8px var(--accent); }
-  .gauge .top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
-  .gauge .label { font-size: 13px; font-weight: 600; letter-spacing: .5px; color: var(--muted); }
-  .gauge .unit { font-size: 26px; font-weight: 600; color: var(--accent); }
-  .gauge .val {
-    width: 100%;
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--txt);
-    font-size: 62px;
-    font-weight: 600;
-    letter-spacing: -1px;
-    line-height: 1.05;
+  .gauge input::placeholder{ color:#BBCEDD; }
+  .hint{ font-size:11px; color:var(--muted); margin-top:2px; }
+
+  /* Ergebnisse */
+  .results{ display:flex; flex-direction:column; gap:10px; }
+  .row{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--panel); border:1px solid var(--line); border-radius:15px;
+    padding:14px 18px; box-shadow:0 2px 8px rgba(20,50,80,.05);
   }
-  .gauge .val::placeholder { color: #3C4650; }
-  #kn { --accent: var(--amber); }
-  #kn.g-accent { color: var(--amber); }
-  #kmh { --accent: var(--green); }
- 
-  .eq {
-    align-self: center;
-    color: var(--muted);
-    font-size: 12px;
-    letter-spacing: 1px;
-    padding: 2px 0;
-  }
-  .eq b { color: var(--txt); font-weight: 600; }
- 
-  .ref {
-    width: 100%; max-width: 440px;
-    margin-top: 22px;
-    border-top: 1px solid var(--line);
-    padding-top: 16px;
-  }
-  .ref h2 { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
-  .chips { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .chip {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 12px;
-    padding: 9px 4px;
-    text-align: center;
-    cursor: pointer;
-    transition: background .15s ease, transform .05s ease;
-  }
-  .chip:active { transform: scale(.95); background: var(--panel-hi); }
-  .chip .n { font-size: 17px; font-weight: 600; color: var(--amber); }
-  .chip.kmh .n { color: var(--green); }
-  .chip .u { font-size: 9px; color: var(--muted); letter-spacing: .5px; margin-top: 1px; }
+  .row .rlabel{ display:flex; flex-direction:column; }
+  .row .rname{ font-size:16px; font-weight:700; color:var(--txt); }
+  .row .rsub{ font-size:11.5px; color:var(--muted); margin-top:1px; }
+  .row .rval{ font-size:27px; font-weight:700; color:var(--accent); }
+  .row .rval .ru{ font-size:13px; color:var(--muted); font-weight:600; margin-left:5px; }
+  .row.beaufort .rval{ color:var(--warn); }
 </style>
 </head>
 <body>
-  <header>
-    <span class="dot"></span>
-    <h1>Wind &middot; Knoten / km/h</h1>
-  </header>
- 
-  <div class="stack">
-    <div class="gauge" id="g-kn">
-      <div class="top">
-        <span class="label">KNOTEN</span>
-        <span class="unit">kn</span>
-      </div>
-      <input class="val mono" id="kn" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+  <svg class="windbg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <g class="g1" opacity="0.5">
+      <path d="M -60,110 C 60,70 150,150 250,110 S 420,80 520,120" stroke-width="2.4"/>
+      <path d="M -60,150 C 80,120 170,180 270,150" stroke-width="1.6" opacity="0.7"/>
+    </g>
+    <g class="g2" opacity="0.42">
+      <path d="M -60,300 C 90,250 190,340 300,290 S 470,260 560,300" stroke-width="2.8"/>
+      <path d="M -40,345 C 70,320 150,370 250,345" stroke-width="1.5" opacity="0.7"/>
+    </g>
+    <g class="g3" opacity="0.4">
+      <path d="M -60,540 C 80,500 180,580 290,535 S 470,510 560,548" stroke-width="2.4"/>
+      <path d="M -60,590 C 100,560 200,610 320,585" stroke-width="1.5" opacity="0.7"/>
+    </g>
+    <g class="g1" opacity="0.32">
+      <path d="M -60,720 C 90,685 190,760 310,715" stroke-width="2.2"/>
+    </g>
+  </svg>
+
+<div class="wrap">
+  <header><span class="dot"></span><h1>Windgeschwindigkeit</h1></header>
+
+  <div class="caption"><span>1 ·</span> Ausgangseinheit wählen</div>
+  <div class="units" id="units"></div>
+
+  <div class="caption"><span>2 ·</span> Wert eingeben</div>
+  <div class="gauge">
+    <div class="top">
+      <span class="label" id="inLabel">KNOTEN</span>
+      <span class="unit" id="inUnit">kn</span>
     </div>
- 
-    <div class="eq mono">&times; 1,852 &nbsp;&harr;&nbsp; &divide; 1,852</div>
- 
-    <div class="gauge" id="g-kmh">
-      <div class="top">
-        <span class="label">GESCHWINDIGKEIT</span>
-        <span class="unit">km/h</span>
-      </div>
-      <input class="val mono" id="kmh" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
-    </div>
+    <input class="mono" id="value" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
+    <div class="hint" id="inHint"></div>
   </div>
- 
-  <div class="ref">
-    <h2>Schnellwahl &middot; Knoten &rarr; km/h</h2>
-    <div class="chips" id="chips-kn"></div>
-    <h2 style="margin-top:16px;">Schnellwahl &middot; km/h &rarr; Knoten</h2>
-    <div class="chips" id="chips-kmh"></div>
-  </div>
- 
+
+  <div class="caption">Ergebnis</div>
+  <div class="results" id="results"></div>
+</div>
+
 <script>
-  const FACTOR = 1.852;
-  const kn = document.getElementById('kn');
-  const kmh = document.getElementById('kmh');
-  const gKn = document.getElementById('g-kn');
-  const gKmh = document.getElementById('g-kmh');
- 
-  // Deutsche Zahlenformatierung: Komma als Dezimaltrennzeichen
-  const fmt = (n) => {
-    if (!isFinite(n)) return '';
-    return (Math.round(n * 10) / 10)
-      .toString()
-      .replace('.', ',');
-  };
-  const parse = (s) => parseFloat(String(s).replace(',', '.'));
- 
-  function fromKn() {
-    const v = parse(kn.value);
-    kmh.value = kn.value.trim() === '' || isNaN(v) ? '' : fmt(v * FACTOR);
-  }
-  function fromKmh() {
-    const v = parse(kmh.value);
-    kn.value = kmh.value.trim() === '' || isNaN(v) ? '' : fmt(v / FACTOR);
-  }
- 
-  kn.addEventListener('input', fromKn);
-  kmh.addEventListener('input', fromKmh);
- 
-  kn.addEventListener('focus', () => gKn.classList.add('active'));
-  kn.addEventListener('blur', () => gKn.classList.remove('active'));
-  kmh.addEventListener('focus', () => gKmh.classList.add('active'));
-  kmh.addEventListener('blur', () => gKmh.classList.remove('active'));
- 
-  // Schnellwahl in 5er-Schritten, in beide Richtungen
-  const knPresets  = [5, 10, 15, 20, 25, 30, 35, 40];
-  const kmhPresets = [20, 25, 30, 35, 40, 45, 50, 55];
- 
-  const chipsKn = document.getElementById('chips-kn');
-  knPresets.forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'chip';
-    el.innerHTML = `<div class="n">${p}</div><div class="u">${fmt(p*FACTOR)} km/h</div>`;
-    el.addEventListener('click', () => { kn.value = p; fromKn(); kn.blur(); });
-    chipsKn.appendChild(el);
+  const UNITS = [
+    { key:'ms',  u:'m/s',  name:'Meter/Sek.',  toMs:v=>v,               fromMs:v=>v },
+    { key:'kmh', u:'km/h', name:'Kilometer/h',  toMs:v=>v/3.6,          fromMs:v=>v*3.6 },
+    { key:'kn',  u:'kn',   name:'Knoten',       toMs:v=>v*0.514444,     fromMs:v=>v/0.514444 },
+    { key:'mph', u:'mph',  name:'Meilen/h',     toMs:v=>v*0.44704,      fromMs:v=>v/0.44704 },
+    { key:'bft', u:'Bft',  name:'Beaufort',     toMs:v=>0.836*Math.pow(v,1.5), fromMs:null }
+  ];
+
+  const BFT_DESC = ['Windstille','Leiser Zug','Leichte Brise','Schwache Brise','Mäßige Brise',
+    'Frische Brise','Starker Wind','Steifer Wind','Stürmischer Wind','Sturm','Schwerer Sturm',
+    'Orkanartiger Sturm','Orkan'];
+  const BFT_LOWER = [0.5,1.6,3.4,5.5,8.0,10.8,13.9,17.2,20.8,24.5,28.5,32.7];
+  function beaufort(ms){ let b=0; for(let i=0;i<BFT_LOWER.length;i++){ if(ms>=BFT_LOWER[i]) b=i+1; } return Math.min(b,12); }
+
+  const fmt = n => isFinite(n) ? (Math.round(n*10)/10).toString().replace('.',',') : '';
+  const parse = s => parseFloat(String(s).replace(',','.'));
+
+  let selected = 'kn';
+
+  const unitsEl = document.getElementById('units');
+  UNITS.forEach(x=>{
+    const b=document.createElement('div');
+    b.className='unit-btn'+(x.key===selected?' sel':'');
+    b.dataset.key=x.key;
+    b.innerHTML=`<div class="u">${x.u}</div><div class="n">${x.name}</div>`;
+    b.addEventListener('click',()=>selectUnit(x.key));
+    unitsEl.appendChild(b);
   });
- 
-  const chipsKmh = document.getElementById('chips-kmh');
-  kmhPresets.forEach(p => {
-    const el = document.createElement('div');
-    el.className = 'chip kmh';
-    el.innerHTML = `<div class="n">${p}</div><div class="u">${fmt(p/FACTOR)} kn</div>`;
-    el.addEventListener('click', () => { kmh.value = p; fromKmh(); kmh.blur(); });
-    chipsKmh.appendChild(el);
-  });
- 
-  kn.focus();
+
+  const valEl=document.getElementById('value');
+  const inLabel=document.getElementById('inLabel');
+  const inUnit=document.getElementById('inUnit');
+  const inHint=document.getElementById('inHint');
+  const resultsEl=document.getElementById('results');
+
+  function selectUnit(key){
+    selected=key;
+    valEl.value='';                       // Eingabefeld beim Wechsel leeren
+    document.querySelectorAll('.unit-btn').forEach(b=>b.classList.toggle('sel',b.dataset.key===key));
+    const cur=UNITS.find(u=>u.key===key);
+    inLabel.textContent=cur.name.toUpperCase();
+    inUnit.textContent=cur.u;
+    if(key==='bft'){ inHint.textContent='Ganze Zahl 0–12'; valEl.setAttribute('inputmode','numeric'); }
+    else { inHint.textContent=''; valEl.setAttribute('inputmode','decimal'); }
+    render(); valEl.focus();
+  }
+
+  function render(){
+    const raw=valEl.value.trim();
+    const v=parse(raw);
+    resultsEl.innerHTML='';
+    if(raw===''||isNaN(v)){ UNITS.filter(u=>u.key!==selected).forEach(u=>addRow(u,'')); return; }
+    const cur=UNITS.find(u=>u.key===selected);
+    let ms=cur.toMs(selected==='bft'?Math.max(0,Math.min(12,v)):v);
+    UNITS.filter(u=>u.key!==selected).forEach(u=>{
+      if(u.key==='bft'){ const b=beaufort(ms); addRow(u,b.toString(),BFT_DESC[b]); }
+      else { addRow(u,fmt(u.fromMs(ms))); }
+    });
+  }
+
+  function addRow(u,val,sub){
+    const r=document.createElement('div');
+    r.className='row'+(u.key==='bft'?' beaufort':'');
+    const subLine = u.key==='bft'
+      ? (sub?`<div class="rsub">${sub}</div>`:'<div class="rsub">Windstärke</div>')
+      : `<div class="rsub">${u.name}</div>`;
+    const valHtml = val!==''
+      ? `<div class="rval">${val}${u.key==='bft'?'':`<span class="ru">${u.u}</span>`}</div>`
+      : `<div class="rval" style="color:#BBCEDD">–</div>`;
+    r.innerHTML=`<div class="rlabel"><div class="rname">${u.u}</div>${subLine}</div>${valHtml}`;
+    resultsEl.appendChild(r);
+  }
+
+  valEl.addEventListener('input',render);
+  selectUnit(selected);
 </script>
 </body>
 </html>
