@@ -25,7 +25,7 @@
     overflow-y:auto; position:relative;
   }
   .mono{ font-family:"SF Mono",ui-monospace,"Menlo",monospace; }
-
+ 
   .windbg{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
   .windbg path{ fill:none; stroke:#9CC2E0; stroke-linecap:round; }
   @keyframes drift1{ 0%{transform:translateX(-30px)} 100%{transform:translateX(30px)} }
@@ -34,24 +34,24 @@
   .g2{ animation:drift2 14s ease-in-out infinite alternate; }
   .g3{ animation:drift1 17s ease-in-out infinite alternate; }
   @media (prefers-reduced-motion:reduce){ .g1,.g2,.g3{ animation:none; } }
-
+ 
   .wrap{ width:100%; max-width:440px; position:relative; z-index:1; }
-
+ 
   header{ display:flex; align-items:center; gap:11px; margin-bottom:20px; }
   .dot{ width:11px; height:11px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px rgba(14,158,130,.5); }
   header h1{ font-size:19px; font-weight:800; letter-spacing:.5px; color:var(--txt); }
-
+ 
   /* Tabs */
   .tabs{ display:flex; background:#DCE7EF; border-radius:14px; padding:4px; gap:4px; margin-bottom:24px; }
   .tab{ flex:1; text-align:center; padding:11px 6px; border-radius:10px; font-weight:700; font-size:15px; color:var(--muted); cursor:pointer; transition:all .15s ease; }
   .tab.sel{ background:#fff; color:var(--sel); box-shadow:0 2px 6px rgba(20,50,80,.1); }
-
+ 
   .view{ display:none; }
   .view.active{ display:block; }
-
+ 
   .caption{ font-size:15px; font-weight:800; letter-spacing:.2px; color:var(--txt); margin-bottom:12px; }
   .caption span{ color:var(--sel); }
-
+ 
   /* ---- Umrechner ---- */
   .units{ display:grid; grid-template-columns:repeat(5,1fr); gap:7px; margin-bottom:26px; }
   .unit-btn{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 2px 10px; text-align:center; cursor:pointer; box-shadow:0 2px 8px rgba(20,50,80,.05); transition:all .15s ease, transform .05s ease; }
@@ -60,7 +60,7 @@
   .unit-btn .n{ font-size:8.5px; letter-spacing:.2px; color:var(--muted); margin-top:3px; }
   .unit-btn.sel{ background:#E4F1FC; border-color:var(--sel); box-shadow:0 0 0 1px var(--sel), 0 4px 14px rgba(46,134,201,.18); }
   .unit-btn.sel .u, .unit-btn.sel .n{ color:var(--sel); }
-
+ 
   .gauge{ background:var(--panel); border:1.5px solid var(--sel); border-radius:22px; padding:20px 24px 18px; box-shadow:0 8px 26px rgba(46,134,201,.16); margin-bottom:26px; }
   .gauge .top{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:4px; }
   .gauge .label{ font-size:13px; font-weight:700; letter-spacing:.4px; color:var(--muted); }
@@ -68,7 +68,7 @@
   .gauge input{ width:100%; background:transparent; border:none; outline:none; color:var(--txt); font-size:60px; font-weight:700; letter-spacing:-1px; line-height:1.05; }
   .gauge input::placeholder{ color:#BBCEDD; }
   .hint{ font-size:11px; color:var(--muted); margin-top:2px; }
-
+ 
   .results{ display:flex; flex-direction:column; gap:10px; }
   .row{ display:flex; align-items:center; justify-content:space-between; background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:14px 18px; box-shadow:0 2px 8px rgba(20,50,80,.05); }
   .row .rlabel{ display:flex; flex-direction:column; }
@@ -77,7 +77,7 @@
   .row .rval{ font-size:27px; font-weight:700; color:var(--accent); }
   .row .rval .ru{ font-size:13px; color:var(--muted); font-weight:600; margin-left:5px; }
   .row.beaufort .rval{ color:var(--warn); }
-
+ 
   /* ---- Seitenwind ---- */
   .field{ background:var(--panel); border:1px solid var(--line); border-radius:15px; padding:12px 18px; margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(20,50,80,.05); }
   .field .flab{ display:flex; flex-direction:column; }
@@ -87,10 +87,10 @@
   .field input{ width:110px; text-align:right; font-size:32px; font-weight:700; border:none; outline:none; background:transparent; color:var(--sel); }
   .field input::placeholder{ color:#BBCEDD; }
   .field .fu{ font-size:14px; color:var(--muted); font-weight:700; min-width:26px; }
-
+ 
   .diagram{ background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:14px; margin:6px 0 14px; box-shadow:0 2px 8px rgba(20,50,80,.05); display:flex; justify-content:center; }
   .diagram svg{ width:100%; max-width:280px; height:auto; }
-
+ 
   .cw-main{ background:#fff; border:1.5px solid var(--warn); border-radius:18px; padding:16px 20px; box-shadow:0 6px 20px rgba(229,138,38,.15); margin-bottom:10px; display:flex; align-items:center; justify-content:space-between; }
   .cw-main .l{ display:flex; flex-direction:column; }
   .cw-main .t{ font-size:15px; font-weight:700; color:var(--txt); }
@@ -111,35 +111,35 @@
     <g class="g3" opacity="0.4"><path d="M -60,540 C 80,500 180,580 290,535 S 470,510 560,548" stroke-width="2.4"/><path d="M -60,590 C 100,560 200,610 320,585" stroke-width="1.5" opacity="0.7"/></g>
     <g class="g1" opacity="0.32"><path d="M -60,720 C 90,685 190,760 310,715" stroke-width="2.2"/></g>
   </svg>
-
+ 
 <div class="wrap">
   <header><span class="dot"></span><h1>Wind-Rechner</h1></header>
-
+ 
   <div class="tabs">
     <div class="tab sel" data-view="conv">Umrechner</div>
     <div class="tab" data-view="cross">Seitenwind</div>
   </div>
-
+ 
   <!-- ============ UMRECHNER ============ -->
   <div class="view active" id="view-conv">
     <div class="caption"><span>1 ·</span> Ausgangseinheit wählen</div>
     <div class="units" id="units"></div>
-
+ 
     <div class="caption"><span>2 ·</span> Wert eingeben</div>
     <div class="gauge">
       <div class="top"><span class="label" id="inLabel">KNOTEN</span><span class="unit" id="inUnit">kn</span></div>
       <input class="mono" id="value" type="text" inputmode="decimal" placeholder="0" autocomplete="off">
       <div class="hint" id="inHint"></div>
     </div>
-
+ 
     <div class="caption">Ergebnis</div>
     <div class="results" id="results"></div>
   </div>
-
+ 
   <!-- ============ SEITENWIND ============ -->
   <div class="view" id="view-cross">
     <div class="caption"><span>1 ·</span> Wind &amp; Bahn eingeben</div>
-
+ 
     <div class="field">
       <div class="flab"><div class="fname">Windrichtung</div><div class="fsub">woher der Wind kommt</div></div>
       <div class="inp"><input id="windDir" type="text" inputmode="numeric" placeholder="090"><span class="fu">°</span></div>
@@ -152,10 +152,10 @@
       <div class="flab"><div class="fname">Start-/Landerichtung</div><div class="fsub">Bahn-Kurs, z. B. 07 → 070</div></div>
       <div class="inp"><input id="rwyHdg" type="text" inputmode="numeric" placeholder="090"><span class="fu">°</span></div>
     </div>
-
+ 
     <div class="caption" style="margin-top:20px;">Ergebnis</div>
     <div class="diagram"><svg id="cwDiagram" viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"></svg></div>
-
+ 
     <div class="cw-main">
       <div class="l"><div class="t">Seitenwind</div><div class="s" id="cwSide">–</div></div>
       <div class="v" id="cwVal">–<span class="u">kn</span></div>
@@ -166,7 +166,7 @@
     </div>
   </div>
 </div>
-
+ 
 <script>
   /* ---------- Tabs ---------- */
   document.querySelectorAll('.tab').forEach(t=>{
@@ -178,7 +178,7 @@
       document.getElementById('view-cross').classList.toggle('active', v==='cross');
     });
   });
-
+ 
   /* ---------- Umrechner ---------- */
   const UNITS = [
     { key:'ms',  u:'m/s',  name:'Meter/Sek.',  toMs:v=>v,               fromMs:v=>v },
@@ -192,12 +192,12 @@
   function beaufort(ms){ let b=0; for(let i=0;i<BFT_LOWER.length;i++){ if(ms>=BFT_LOWER[i]) b=i+1; } return Math.min(b,12); }
   const fmt = n => isFinite(n) ? (Math.round(n*10)/10).toString().replace('.',',') : '';
   const parse = s => parseFloat(String(s).replace(',','.'));
-
+ 
   let selected='kn';
   const unitsEl=document.getElementById('units');
   UNITS.forEach(x=>{ const b=document.createElement('div'); b.className='unit-btn'+(x.key===selected?' sel':''); b.dataset.key=x.key; b.innerHTML=`<div class="u">${x.u}</div><div class="n">${x.name}</div>`; b.addEventListener('click',()=>selectUnit(x.key)); unitsEl.appendChild(b); });
   const valEl=document.getElementById('value'), inLabel=document.getElementById('inLabel'), inUnit=document.getElementById('inUnit'), inHint=document.getElementById('inHint'), resultsEl=document.getElementById('results');
-
+ 
   function selectUnit(key){
     selected=key; valEl.value='';
     document.querySelectorAll('.unit-btn').forEach(b=>b.classList.toggle('sel',b.dataset.key===key));
@@ -220,15 +220,15 @@
     r.innerHTML=`<div class="rlabel"><div class="rname">${u.u}</div>${subLine}</div>${valHtml}`; resultsEl.appendChild(r);
   }
   selectUnit(selected);
-
+ 
   /* ---------- Seitenwind ---------- */
   const windDir=document.getElementById('windDir'), windSpd=document.getElementById('windSpd'), rwyHdg=document.getElementById('rwyHdg');
   const cwVal=document.getElementById('cwVal'), cwSide=document.getElementById('cwSide'), hwVal=document.getElementById('hwVal'), hwName=document.getElementById('hwName');
   const dia=document.getElementById('cwDiagram');
   const C=120, R=86;
-
+ 
   function normSigned(a){ a=((a%360)+360)%360; return a>180?a-360:a; }
-
+ 
   function arrow(x1,y1,x2,y2,color,w){
     const ang=Math.atan2(y2-y1,x2-x1), hl=12, hw=7.5;
     const bx=x2-hl*Math.cos(ang), by=y2-hl*Math.sin(ang);
@@ -236,14 +236,14 @@
     const p2x=bx+hw*Math.cos(ang-Math.PI/2), p2y=by+hw*Math.sin(ang-Math.PI/2);
     return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${x2},${y2} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"/>`;
   }
-
+ 
   function drawDiagram(alpha, hasData){
     // Grundgerüst: Kompasskreis + Bahn (zeigt nach oben = Bahnkurs)
     let s=`<circle cx="${C}" cy="${C}" r="90" fill="#F4F9FC" stroke="#DCE7EF" stroke-width="1.5"/>`;
     s+=`<rect x="${C-11}" y="${C-96}" width="22" height="192" rx="6" fill="#C9D6E0" opacity="0.55"/>`;
     s+=`<line x1="${C}" y1="${C-88}" x2="${C}" y2="${C+88}" stroke="#fff" stroke-width="2" stroke-dasharray="7 7"/>`;
     s+=`<text x="${C}" y="${C-100}" text-anchor="middle" font-size="12" font-weight="700" fill="#5F7280">BAHN</text>`;
-
+ 
     if(hasData){
       const rad=alpha*Math.PI/180;
       const Sx=C+R*Math.sin(rad), Sy=C-R*Math.cos(rad);   // Quelle des Windes
@@ -258,7 +258,7 @@
     s+=`<circle cx="${C}" cy="${C}" r="4.5" fill="#15242F"/>`;
     dia.innerHTML=s;
   }
-
+ 
   function renderCross(){
     const wd=parse(windDir.value), ws=parse(windSpd.value), rh=parse(rwyHdg.value);
     const ok = !isNaN(wd)&&!isNaN(ws)&&!isNaN(rh)&&windDir.value.trim()!==''&&windSpd.value.trim()!==''&&rwyHdg.value.trim()!=='';
@@ -272,23 +272,24 @@
     const cross=Math.abs(ws*Math.sin(rad));
     const along=ws*Math.cos(rad);            // >0 Gegenwind, <0 Rückenwind
     const side = Math.round(alpha)===0||Math.round(alpha)===180||Math.round(alpha)===-180 ? 'kein Seitenwind' : (alpha>0?'von rechts':'von links');
-
+ 
     cwVal.innerHTML=`${fmt(cross)}<span class="u">kn</span>`;
     cwSide.textContent=side;
-
+ 
     const headwind = along>=0;
     hwName.textContent = headwind?'Gegenwind':'Rückenwind';
     hwVal.style.color = headwind?'var(--accent)':'var(--red)';
     hwVal.innerHTML=`${fmt(Math.abs(along))}<span class="u">kn</span>`;
-
+ 
     drawDiagram(alpha,true);
   }
-
+ 
   [windDir,windSpd,rwyHdg].forEach(el=>el.addEventListener('input',renderCross));
-
+ 
   // Beispielwerte vorbelegen
   windDir.value='120'; windSpd.value='18'; rwyHdg.value='090';
   renderCross();
 </script>
 </body>
 </html>
+ 
