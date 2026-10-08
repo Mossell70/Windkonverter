@@ -102,6 +102,12 @@
   .cw-sec .s{ font-size:11.5px; color:var(--muted); margin-top:1px; }
   .cw-sec .v{ font-size:27px; font-weight:700; }
   .cw-sec .v .u{ font-size:13px; color:var(--muted); font-weight:600; margin-left:4px; }
+  /* Rückenwind-Warnung */
+  .cw-sec .t{ display:flex; align-items:center; gap:6px; }
+  .cw-sec .warn-ic{ display:none; width:18px; height:18px; flex:none; }
+  .cw-sec.tail{ background:#FDF0F0; border:1.5px solid var(--red); box-shadow:0 6px 20px rgba(214,72,75,.15); }
+  .cw-sec.tail .t, .cw-sec.tail .s, .cw-sec.tail .v, .cw-sec.tail .v .u{ color:var(--red); }
+  .cw-sec.tail .warn-ic{ display:block; }
 </style>
 </head>
 <body>
@@ -160,8 +166,8 @@
       <div class="l"><div class="t">Seitenwind</div><div class="s" id="cwSide">–</div></div>
       <div class="v" id="cwVal">–<span class="u">kn</span></div>
     </div>
-    <div class="cw-sec">
-      <div class="l"><div class="t" id="hwName">Gegenwind</div><div class="s">Längskomponente</div></div>
+    <div class="cw-sec" id="hwBox">
+      <div class="l"><div class="t"><svg class="warn-ic" viewBox="0 0 24 24" aria-label="Achtung" role="img"><path d="M12 2.5 1.5 21h21z" fill="#D6484B" stroke="#D6484B" stroke-width="1.5" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6.5" rx="1" fill="#fff"/><circle cx="12" cy="18" r="1.2" fill="#fff"/></svg><span id="hwName">Gegenwind</span></div><div class="s">Längskomponente</div></div>
       <div class="v" id="hwVal" style="color:var(--accent)">–<span class="u">kn</span></div>
     </div>
   </div>
@@ -224,7 +230,7 @@
 
   /* ---------- Seitenwind ---------- */
   const windDir=document.getElementById('windDir'), windSpd=document.getElementById('windSpd'), rwyHdg=document.getElementById('rwyHdg');
-  const cwVal=document.getElementById('cwVal'), cwSide=document.getElementById('cwSide'), hwVal=document.getElementById('hwVal'), hwName=document.getElementById('hwName');
+  const cwVal=document.getElementById('cwVal'), cwSide=document.getElementById('cwSide'), hwVal=document.getElementById('hwVal'), hwName=document.getElementById('hwName'), hwBox=document.getElementById('hwBox');
   const dia=document.getElementById('cwDiagram');
   const C=120, R=86;
  
@@ -291,7 +297,7 @@
     const ok = !isNaN(wd)&&!isNaN(ws)&&!isNaN(rh)&&windDir.value.trim()!==''&&windSpd.value.trim()!==''&&rwyHdg.value.trim()!=='';
     if(!ok){
       cwVal.innerHTML='–<span class="u">kn</span>'; cwSide.textContent='–';
-      hwVal.innerHTML='–<span class="u">kn</span>'; hwName.textContent='Längskomponente';
+      hwVal.innerHTML='–<span class="u">kn</span>'; hwName.textContent='Längskomponente'; hwBox.classList.remove('tail'); hwVal.style.color='var(--accent)';
       drawDiagram(0,false,rh); return;
     }
     const alpha=normSigned(wd-rh);
@@ -306,6 +312,7 @@
     const headwind = along>=0;
     hwName.textContent = headwind?'Gegenwind':'Rückenwind';
     hwVal.style.color = headwind?'var(--accent)':'var(--red)';
+    hwBox.classList.toggle('tail', !headwind);   // Rückenwind: rot + Achtungszeichen
     hwVal.innerHTML=`${fmt(Math.abs(along))}<span class="u">kn</span>`;
  
     drawDiagram(alpha,true,rh);
