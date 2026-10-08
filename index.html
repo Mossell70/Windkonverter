@@ -245,6 +245,8 @@
   }
  
   // Kompassrose um das Diagramm: Start-/Landerichtung steht immer unten (6 Uhr), die Rose dreht sich entsprechend mit.
+  // Die Darstellung ist horizontal gespiegelt, damit links/rechts der Pilotensicht entspricht
+  // (Wind „von rechts“ erscheint rechts); die Gradzahlen laufen dadurch gegen den Uhrzeigersinn.
   const ROSE_LABELS={0:'N',90:'O',180:'S',270:'W'};
   function drawRose(hdg){
     const hasHdg=!isNaN(hdg), rot=hasHdg?((hdg%360)+360)%360:0;
@@ -252,11 +254,11 @@
     for(let d=0; d<360; d+=10){
       const a=(d-rot+180)*Math.PI/180, sin=Math.sin(a), cos=Math.cos(a);
       const major=d%30===0, r2=major?106:102;
-      s+=`<line x1="${C+98*sin}" y1="${C-98*cos}" x2="${C+r2*sin}" y2="${C-r2*cos}" stroke="${major?'#5F7280':'#B7C7D4'}" stroke-width="${major?1.6:1}"/>`;
+      s+=`<line x1="${C-98*sin}" y1="${C-98*cos}" x2="${C-r2*sin}" y2="${C-r2*cos}" stroke="${major?'#5F7280':'#B7C7D4'}" stroke-width="${major?1.6:1}"/>`;
       // Labels, die mit der Kursmarke unten kollidieren würden, auslassen
       if(major && !(hasHdg && Math.abs(normSigned(d-rot))<20)){
         const lab=ROSE_LABELS[d]||String(d), card=d in ROSE_LABELS;
-        s+=`<text class="rose" x="${(C+117*sin).toFixed(1)}" y="${(C-117*cos).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${card?13:10}" font-weight="${card?800:600}" fill="${d===0?'#D6484B':(card?'#15242F':'#5F7280')}">${lab}</text>`;
+        s+=`<text class="rose" x="${(C-117*sin).toFixed(1)}" y="${(C-117*cos).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${card?13:10}" font-weight="${card?800:600}" fill="${d===0?'#D6484B':(card?'#15242F':'#5F7280')}">${lab}</text>`;
       }
     }
     // Eingegebene Start-/Landerichtung immer unten (6 Uhr)
@@ -279,7 +281,7 @@
  
     if(hasData){
       const rad=alpha*Math.PI/180;
-      const Sx=C-R*Math.sin(rad), Sy=C+R*Math.cos(rad);   // Quelle des Windes (Bahnkurs zeigt nach unten)
+      const Sx=C+R*Math.sin(rad), Sy=C+R*Math.cos(rad);   // Quelle des Windes (Bahnkurs unten, gespiegelt: rechts = rechts aus Pilotensicht)
       const Hx=C, Hy=Sy;                                   // Ecke der Zerlegung
       // Zerlegungs-Schenkel
       s+=`<line x1="${Sx}" y1="${Sy}" x2="${Hx}" y2="${Hy}" stroke="#E58A26" stroke-width="4" stroke-linecap="round"/>`;   // Seitenwind
