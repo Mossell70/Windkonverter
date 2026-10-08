@@ -238,34 +238,42 @@
     return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${x2},${y2} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"/>`;
   }
  
-  // Kompassrose um das Diagramm: Bahnkurs zeigt nach oben, die Rose dreht sich entsprechend mit.
+  // Kompassrose um das Diagramm: Start-/Landerichtung steht immer unten (6 Uhr), die Rose dreht sich entsprechend mit.
   const ROSE_LABELS={0:'N',90:'O',180:'S',270:'W'};
   function drawRose(hdg){
-    const rot=isNaN(hdg)?0:hdg;
+    const hasHdg=!isNaN(hdg), rot=hasHdg?((hdg%360)+360)%360:0;
     let s=`<circle cx="${C}" cy="${C}" r="98" fill="none" stroke="#DCE7EF" stroke-width="1.2"/>`;
     for(let d=0; d<360; d+=10){
-      const a=(d-rot)*Math.PI/180, sin=Math.sin(a), cos=Math.cos(a);
+      const a=(d-rot+180)*Math.PI/180, sin=Math.sin(a), cos=Math.cos(a);
       const major=d%30===0, r2=major?106:102;
       s+=`<line x1="${C+98*sin}" y1="${C-98*cos}" x2="${C+r2*sin}" y2="${C-r2*cos}" stroke="${major?'#5F7280':'#B7C7D4'}" stroke-width="${major?1.6:1}"/>`;
-      if(major){
+      // Labels, die mit der Kursmarke unten kollidieren würden, auslassen
+      if(major && !(hasHdg && Math.abs(normSigned(d-rot))<20)){
         const lab=ROSE_LABELS[d]||String(d), card=d in ROSE_LABELS;
         s+=`<text class="rose" x="${(C+117*sin).toFixed(1)}" y="${(C-117*cos).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${card?13:10}" font-weight="${card?800:600}" fill="${d===0?'#D6484B':(card?'#15242F':'#5F7280')}">${lab}</text>`;
       }
+    }
+    // Eingegebene Start-/Landerichtung immer unten (6 Uhr)
+    if(hasHdg){
+      const r=Math.round(rot), txt=String(r===0?360:r).padStart(3,'0')+'°';
+      s+=`<polygon points="${C},${C+97} ${C-6},${C+107} ${C+6},${C+107}" fill="#2E86C9"/>`;
+      s+=`<rect x="${C-24}" y="${C+107}" width="48" height="20" rx="10" fill="#2E86C9"/>`;
+      s+=`<text class="hdg" x="${C}" y="${C+117}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="#fff">${txt}</text>`;
     }
     return s;
   }
 
   function drawDiagram(alpha, hasData, hdg){
-    // Grundgerüst: Kompassrose + Kreis + Bahn (zeigt nach oben = Bahnkurs)
+    // Grundgerüst: Kompassrose + Kreis + Bahn (Bahnkurs zeigt nach unten)
     let s=drawRose(hdg);
     s+=`<circle cx="${C}" cy="${C}" r="90" fill="#F4F9FC" stroke="#DCE7EF" stroke-width="1.5"/>`;
     s+=`<rect x="${C-11}" y="${C-88}" width="22" height="176" rx="6" fill="#C9D6E0" opacity="0.55"/>`;
     s+=`<line x1="${C}" y1="${C-84}" x2="${C}" y2="${C+84}" stroke="#fff" stroke-width="2" stroke-dasharray="7 7"/>`;
-    s+=`<text x="${C}" y="${C+66}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="800" letter-spacing="1" fill="#5F7280" transform="rotate(-90 ${C} ${C+66})">BAHN</text>`;
+    s+=`<text x="${C}" y="${C-66}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="800" letter-spacing="1" fill="#5F7280" transform="rotate(-90 ${C} ${C-66})">BAHN</text>`;
  
     if(hasData){
       const rad=alpha*Math.PI/180;
-      const Sx=C+R*Math.sin(rad), Sy=C-R*Math.cos(rad);   // Quelle des Windes
+      const Sx=C-R*Math.sin(rad), Sy=C+R*Math.cos(rad);   // Quelle des Windes (Bahnkurs zeigt nach unten)
       const Hx=C, Hy=Sy;                                   // Ecke der Zerlegung
       // Zerlegungs-Schenkel
       s+=`<line x1="${Sx}" y1="${Sy}" x2="${Hx}" y2="${Hy}" stroke="#E58A26" stroke-width="4" stroke-linecap="round"/>`;   // Seitenwind
