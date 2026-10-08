@@ -149,15 +149,15 @@
  
     <div class="field">
       <div class="flab"><div class="fname">Windrichtung</div><div class="fsub">woher der Wind kommt</div></div>
-      <div class="inp"><input id="windDir" type="text" inputmode="numeric" placeholder="090"><span class="fu">°</span></div>
+      <div class="inp"><input id="windDir" type="text" inputmode="numeric" placeholder="000"><span class="fu">°</span></div>
     </div>
     <div class="field">
       <div class="flab"><div class="fname">Windstärke</div><div class="fsub">Knoten</div></div>
-      <div class="inp"><input id="windSpd" type="text" inputmode="decimal" placeholder="15"><span class="fu">kn</span></div>
+      <div class="inp"><input id="windSpd" type="text" inputmode="decimal" placeholder="0"><span class="fu">kn</span></div>
     </div>
     <div class="field">
       <div class="flab"><div class="fname">Start-/Landerichtung</div><div class="fsub" id="rwyHint">Bahnnummer 01–36, z. B. 07</div></div>
-      <div class="inp"><input id="rwyHdg" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" placeholder="09"><span class="fu"></span></div>
+      <div class="inp"><input id="rwyHdg" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" placeholder="00"><span class="fu"></span></div>
     </div>
  
     <div class="caption" style="margin-top:20px;">Ergebnis</div>
@@ -205,13 +205,13 @@
   UNITS.forEach(x=>{ const b=document.createElement('div'); b.className='unit-btn'+(x.key===selected?' sel':''); b.dataset.key=x.key; b.innerHTML=`<div class="u">${x.u}</div><div class="n">${x.name}</div>`; b.addEventListener('click',()=>selectUnit(x.key)); unitsEl.appendChild(b); });
   const valEl=document.getElementById('value'), inLabel=document.getElementById('inLabel'), inUnit=document.getElementById('inUnit'), inHint=document.getElementById('inHint'), resultsEl=document.getElementById('results');
  
-  function selectUnit(key){
+  function selectUnit(key, focus=true){
     selected=key; valEl.value='';
     document.querySelectorAll('.unit-btn').forEach(b=>b.classList.toggle('sel',b.dataset.key===key));
     const cur=UNITS.find(u=>u.key===key);
     inLabel.textContent=cur.name.toUpperCase(); inUnit.textContent=cur.u;
     if(key==='bft'){ inHint.textContent='Ganze Zahl 0–12'; valEl.setAttribute('inputmode','numeric'); } else { inHint.textContent=''; valEl.setAttribute('inputmode','decimal'); }
-    renderConv(); valEl.focus();
+    renderConv(); if(focus) valEl.focus();
   }
   function renderConv(){
     const raw=valEl.value.trim(), v=parse(raw); resultsEl.innerHTML='';
@@ -227,7 +227,8 @@
     r.innerHTML=`<div class="rlabel"><div class="rname">${u.u}</div>${subLine}</div>${valHtml}`; resultsEl.appendChild(r);
   }
   valEl.addEventListener('input',renderConv);
-  selectUnit(selected);
+  selectUnit(selected,false);
+  valEl.value='0'; renderConv();   // Startwert: 0
 
   /* ---------- Seitenwind ---------- */
   const rwyHint=document.getElementById('rwyHint'), windDir=document.getElementById('windDir'), windSpd=document.getElementById('windSpd'), rwyHdg=document.getElementById('rwyHdg');
@@ -326,9 +327,16 @@
  
   [windDir,windSpd,rwyHdg].forEach(el=>el.addEventListener('input',renderCross));
  
-  // Beispielwerte vorbelegen
-  windDir.value='120'; windSpd.value='18'; rwyHdg.value='09';
+  // Startwerte: alles auf null (Bahn bleibt leer, da 00 keine gültige Bahnnummer ist)
+  windDir.value='0'; windSpd.value='0'; rwyHdg.value='';
   renderCross();
+
+  /* ---------- Antippen/Klicken in ein Eingabefeld löscht dessen Wert ---------- */
+  document.querySelectorAll('input').forEach(el=>el.addEventListener('focus',()=>{
+    if(el.value==='') return;
+    el.value='';
+    el.dispatchEvent(new Event('input',{bubbles:true}));
+  }));
 </script>
 </body>
 </html>
