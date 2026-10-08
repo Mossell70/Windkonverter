@@ -87,6 +87,7 @@
   .field input{ width:110px; text-align:right; font-size:32px; font-weight:700; border:none; outline:none; background:transparent; color:var(--sel); }
   .field input::placeholder{ color:#BBCEDD; }
   .field .fu{ font-size:14px; color:var(--muted); font-weight:700; min-width:26px; }
+  .field .fsub.err{ color:var(--red); font-weight:700; }
  
   .diagram{ background:var(--panel); border:1px solid var(--line); border-radius:20px; padding:14px; margin:6px 0 14px; box-shadow:0 2px 8px rgba(20,50,80,.05); display:flex; justify-content:center; }
   .diagram svg{ width:100%; max-width:300px; height:auto; }
@@ -155,8 +156,8 @@
       <div class="inp"><input id="windSpd" type="text" inputmode="decimal" placeholder="15"><span class="fu">kn</span></div>
     </div>
     <div class="field">
-      <div class="flab"><div class="fname">Start-/Landerichtung</div><div class="fsub">Bahn-Kurs, z. B. 07 → 070</div></div>
-      <div class="inp"><input id="rwyHdg" type="text" inputmode="numeric" placeholder="090"><span class="fu">°</span></div>
+      <div class="flab"><div class="fname">Start-/Landerichtung</div><div class="fsub" id="rwyHint">Bahnnummer 01–36, z. B. 07</div></div>
+      <div class="inp"><input id="rwyHdg" type="text" inputmode="numeric" maxlength="2" pattern="[0-9]*" placeholder="09"><span class="fu"></span></div>
     </div>
  
     <div class="caption" style="margin-top:20px;">Ergebnis</div>
@@ -229,7 +230,7 @@
   selectUnit(selected);
 
   /* ---------- Seitenwind ---------- */
-  const windDir=document.getElementById('windDir'), windSpd=document.getElementById('windSpd'), rwyHdg=document.getElementById('rwyHdg');
+  const rwyHint=document.getElementById('rwyHint'), windDir=document.getElementById('windDir'), windSpd=document.getElementById('windSpd'), rwyHdg=document.getElementById('rwyHdg');
   const cwVal=document.getElementById('cwVal'), cwSide=document.getElementById('cwSide'), hwVal=document.getElementById('hwVal'), hwName=document.getElementById('hwName'), hwBox=document.getElementById('hwBox');
   const dia=document.getElementById('cwDiagram');
   const C=120, R=86;
@@ -244,44 +245,42 @@
     return `<line x1="${x1}" y1="${y1}" x2="${bx}" y2="${by}" stroke="${color}" stroke-width="${w}" stroke-linecap="round"/><polygon points="${x2},${y2} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"/>`;
   }
  
-  // Kompassrose um das Diagramm: Start-/Landerichtung steht immer unten (6 Uhr), die Rose dreht sich entsprechend mit.
-  // Die Darstellung ist horizontal gespiegelt, damit links/rechts der Pilotensicht entspricht
-  // (Wind „von rechts“ erscheint rechts); die Gradzahlen laufen dadurch gegen den Uhrzeigersinn.
+  // Kompassrose um das Diagramm. Die Bahn steht immer senkrecht: Schwelle mit Bahnnummer unten,
+  // Start-/Landerichtung zeigt nach oben. Die Rose dreht sich so mit, dass der Bahnkurs oben steht;
+  // der Wind wird relativ zur Bahn gezeichnet (vorne = oben, rechts = rechts aus Pilotensicht).
   const ROSE_LABELS={0:'N',90:'O',180:'S',270:'W'};
   function drawRose(hdg){
-    const hasHdg=!isNaN(hdg), rot=hasHdg?((hdg%360)+360)%360:0;
+    const rot=isNaN(hdg)?0:((hdg%360)+360)%360;
     let s=`<circle cx="${C}" cy="${C}" r="98" fill="none" stroke="#DCE7EF" stroke-width="1.2"/>`;
     for(let d=0; d<360; d+=10){
-      const a=(d-rot+180)*Math.PI/180, sin=Math.sin(a), cos=Math.cos(a);
+      const a=(d-rot)*Math.PI/180, sin=Math.sin(a), cos=Math.cos(a);
       const major=d%30===0, r2=major?106:102;
-      s+=`<line x1="${C-98*sin}" y1="${C-98*cos}" x2="${C-r2*sin}" y2="${C-r2*cos}" stroke="${major?'#5F7280':'#B7C7D4'}" stroke-width="${major?1.6:1}"/>`;
-      // Labels, die mit der Kursmarke unten kollidieren würden, auslassen
-      if(major && !(hasHdg && Math.abs(normSigned(d-rot))<20)){
+      s+=`<line x1="${C+98*sin}" y1="${C-98*cos}" x2="${C+r2*sin}" y2="${C-r2*cos}" stroke="${major?'#5F7280':'#B7C7D4'}" stroke-width="${major?1.6:1}"/>`;
+      if(major){
         const lab=ROSE_LABELS[d]||String(d), card=d in ROSE_LABELS;
-        s+=`<text class="rose" x="${(C-117*sin).toFixed(1)}" y="${(C-117*cos).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${card?13:10}" font-weight="${card?800:600}" fill="${d===0?'#D6484B':(card?'#15242F':'#5F7280')}">${lab}</text>`;
+        s+=`<text class="rose" x="${(C+117*sin).toFixed(1)}" y="${(C-117*cos).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${card?13:10}" font-weight="${card?800:600}" fill="${d===0?'#D6484B':(card?'#15242F':'#5F7280')}">${lab}</text>`;
       }
-    }
-    // Eingegebene Start-/Landerichtung immer unten (6 Uhr)
-    if(hasHdg){
-      const r=Math.round(rot), txt=String(r===0?360:r).padStart(3,'0')+'°';
-      s+=`<polygon points="${C},${C+97} ${C-6},${C+107} ${C+6},${C+107}" fill="#2E86C9"/>`;
-      s+=`<rect x="${C-24}" y="${C+107}" width="48" height="20" rx="10" fill="#2E86C9"/>`;
-      s+=`<text class="hdg" x="${C}" y="${C+117}" text-anchor="middle" dominant-baseline="central" font-size="12" font-weight="800" fill="#fff">${txt}</text>`;
     }
     return s;
   }
 
-  function drawDiagram(alpha, hasData, hdg){
-    // Grundgerüst: Kompassrose + Kreis + Bahn (Bahnkurs zeigt nach unten)
+  function drawDiagram(alpha, hasData, hdg, rwyNum){
+    // Grundgerüst: Kompassrose + Kreis + senkrechte Bahn
     let s=drawRose(hdg);
     s+=`<circle cx="${C}" cy="${C}" r="90" fill="#F4F9FC" stroke="#DCE7EF" stroke-width="1.5"/>`;
-    s+=`<rect x="${C-11}" y="${C-88}" width="22" height="176" rx="6" fill="#C9D6E0" opacity="0.55"/>`;
-    s+=`<line x1="${C}" y1="${C-84}" x2="${C}" y2="${C+84}" stroke="#fff" stroke-width="2" stroke-dasharray="7 7"/>`;
-    s+=`<text x="${C}" y="${C-66}" text-anchor="middle" dominant-baseline="central" font-size="9" font-weight="800" letter-spacing="1" fill="#5F7280" transform="rotate(-90 ${C} ${C-66})">BAHN</text>`;
- 
+    s+=`<rect x="${C-13}" y="${C-88}" width="26" height="176" rx="6" fill="#7A8B98"/>`;
+    s+=`<line x1="${C}" y1="${C-84}" x2="${C}" y2="${C+40}" stroke="#fff" stroke-width="2" stroke-dasharray="7 7"/>`;
+    // Schwellenmarkierung + Bahnnummer unten (Pilotensicht: Start/Landung nach oben)
+    for(let i=-1;i<=1;i++) s+=`<rect x="${C-2+i*7}" y="${C+75}" width="4" height="9" rx="1" fill="#fff"/>`;
+    if(rwyNum){
+      s+=`<text class="rwy" x="${C}" y="${C+62}" text-anchor="middle" dominant-baseline="central" font-size="17" font-weight="800" fill="#fff">${rwyNum}</text>`;
+    }
+    // Richtungspfeil im Bahnkopf: Start-/Landerichtung
+    s+=`<polygon points="${C},${C-86} ${C-7},${C-74} ${C+7},${C-74}" fill="#fff"/>`;
+
     if(hasData){
       const rad=alpha*Math.PI/180;
-      const Sx=C+R*Math.sin(rad), Sy=C+R*Math.cos(rad);   // Quelle des Windes (Bahnkurs unten, gespiegelt: rechts = rechts aus Pilotensicht)
+      const Sx=C+R*Math.sin(rad), Sy=C-R*Math.cos(rad);   // Quelle des Windes relativ zur Bahn
       const Hx=C, Hy=Sy;                                   // Ecke der Zerlegung
       // Zerlegungs-Schenkel
       s+=`<line x1="${Sx}" y1="${Sy}" x2="${Hx}" y2="${Hy}" stroke="#E58A26" stroke-width="4" stroke-linecap="round"/>`;   // Seitenwind
@@ -295,12 +294,17 @@
   }
  
   function renderCross(){
-    const wd=parse(windDir.value), ws=parse(windSpd.value), rh=parse(rwyHdg.value);
-    const ok = !isNaN(wd)&&!isNaN(ws)&&!isNaN(rh)&&windDir.value.trim()!==''&&windSpd.value.trim()!==''&&rwyHdg.value.trim()!=='';
+    const wd=parse(windDir.value), ws=parse(windSpd.value);
+    // Bahn nur zweistellig 01–36 (vermeidet Verwechslung mit der Windrichtung)
+    const rwyRaw=rwyHdg.value.trim(), rwyOk=/^[0-9]{1,2}$/.test(rwyRaw)&&+rwyRaw>=1&&+rwyRaw<=36;
+    const rwyNum=rwyOk?String(+rwyRaw).padStart(2,'0'):'', rh=rwyOk?+rwyRaw*10:NaN;
+    rwyHint.classList.toggle('err', rwyRaw!==''&&!rwyOk);
+    rwyHint.textContent = rwyRaw!==''&&!rwyOk ? 'Nur 01–36 zulässig' : 'Bahnnummer 01–36, z. B. 07';
+    const ok = !isNaN(wd)&&!isNaN(ws)&&rwyOk&&windDir.value.trim()!==''&&windSpd.value.trim()!=='';
     if(!ok){
       cwVal.innerHTML='–<span class="u">kn</span>'; cwSide.textContent='–';
       hwVal.innerHTML='–<span class="u">kn</span>'; hwName.textContent='Längskomponente'; hwBox.classList.remove('tail'); hwVal.style.color='var(--accent)';
-      drawDiagram(0,false,rh); return;
+      drawDiagram(0,false,rh,rwyNum); return;
     }
     const alpha=normSigned(wd-rh);
     const rad=alpha*Math.PI/180;
@@ -317,13 +321,13 @@
     hwBox.classList.toggle('tail', !headwind);   // Rückenwind: rot + Achtungszeichen
     hwVal.innerHTML=`${fmt(Math.abs(along))}<span class="u">kn</span>`;
  
-    drawDiagram(alpha,true,rh);
+    drawDiagram(alpha,true,rh,rwyNum);
   }
  
   [windDir,windSpd,rwyHdg].forEach(el=>el.addEventListener('input',renderCross));
  
   // Beispielwerte vorbelegen
-  windDir.value='120'; windSpd.value='18'; rwyHdg.value='090';
+  windDir.value='120'; windSpd.value='18'; rwyHdg.value='09';
   renderCross();
 </script>
 </body>

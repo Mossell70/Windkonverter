@@ -5,6 +5,6 @@ Windgeschwindigkeits-Konverter für Luftfahrt, Segeln und Wetter – rechnet m/s
 
 ## Funktionen
 - **Umrechner:** Ausgangseinheit wählen, Wert eingeben – alle anderen Einheiten (inkl. Beaufort mit Bezeichnung) werden sofort berechnet.
-- **Seitenwind:** Windrichtung, Windstärke und Bahnrichtung eingeben – berechnet Seitenwind (von links/rechts) sowie Gegen-/Rückenwind. Bei Rückenwind wird das Feld rot mit Achtungszeichen hervorgehoben. Die Grafik ist von einer mitdrehenden Kompassrose umgeben (N, 30, 60, O, 120, 150, S, 210, 240, W, 300, 330); die eingegebene Start-/Landerichtung steht immer unten (6-Uhr-Position) und ist als Kursmarke beschriftet. Die Grafik ist gespiegelt, sodass links/rechts der Pilotensicht entspricht (Wind „von rechts“ erscheint rechts).
+- **Seitenwind:** Windrichtung (°), Windstärke (kn) und Bahnnummer (zweistellig 01–36, z. B. 15 – vermeidet Verwechslung mit der Windrichtung) eingeben – berechnet Seitenwind (von links/rechts) sowie Gegen-/Rückenwind. Bei Rückenwind wird das Feld rot mit Achtungszeichen hervorgehoben. Die Grafik zeigt die Bahn immer senkrecht aus Pilotensicht: Bahnnummer unten an der Schwelle, Start-/Landerichtung nach oben. Der Wind wird relativ zur Bahn gezeichnet (oben = von vorne, rechts = von rechts); die umgebende Kompassrose dreht sich mit, sodass der Bahnkurs oben steht.
 
 Eine einzelne `index.html` ohne Abhängigkeiten, gehostet über GitHub Pages.
